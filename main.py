@@ -32,7 +32,7 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
 
 if __name__ == "__main__":
-    video_path = 'dataset/IMG_1797.MOV'
+    video_path = 'dataset/1st camera.mp4'
 
     # 打开视频文件
     cap = cv2.VideoCapture(video_path)
