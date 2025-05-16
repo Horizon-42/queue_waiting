@@ -30,6 +30,18 @@ class ProcessSafeOrderedDict:
                 self.dict.pop(key)
                 self.order.remove(key)
 
+    def __setitem__(self, key, value):
+        if key not in self.dict:
+            self.order.append(key)
+        self.dict[key] = value
+
+    def __getitem__(self, key):
+        return self.dict[key]
+
+    def __delitem__(self, key):
+        del self.dict[key]
+        self.order.remove(key)
+
     def keys(self):
         with self.lock:
             return list(self.order)

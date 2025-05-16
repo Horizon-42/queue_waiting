@@ -12,6 +12,11 @@ def worker(start, end):
 
 class TestProcessSafeOrderedDict(unittest.TestCase):
 
+    def __init__(self, methodName="runTest"):
+        global _shared_dict
+        super().__init__(methodName)
+        _shared_dict = ProcessSafeOrderedDict()
+
     def test_set_and_get(self):
         _shared_dict.set("a", 1)
         _shared_dict.set("b", 2)
@@ -59,5 +64,6 @@ class TestProcessSafeOrderedDict(unittest.TestCase):
 
 if __name__ == "__main__":
     _shared_dict = ProcessSafeOrderedDict()
-    
+    worker(10, 20)
+    # print(_shared_dict.keys())
     unittest.main()
