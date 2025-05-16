@@ -5,3 +5,7 @@ dataset
 *.pth
 
 __pycache__
+
+*.pyc
+*.png
+*.jpg
