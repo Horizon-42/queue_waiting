@@ -45,6 +45,12 @@ class ProcessSafeOrderedDict:
     def keys(self):
         with self.lock:
             return list(self.order)
+    
+    # clear the dictionary
+    def clear(self):
+        with self.lock:
+            self.dict.clear()
+            self.order[:] = []
 
     def __contains__(self, key):
         with self.lock:
@@ -53,3 +59,5 @@ class ProcessSafeOrderedDict:
     def __len__(self):
         with self.lock:
             return len(self.dict)
+    
+

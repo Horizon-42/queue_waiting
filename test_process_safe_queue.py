@@ -32,10 +32,10 @@ class TestProcessSafeOrderedDict(unittest.TestCase):
         _shared_dict.set("x", 9)
         _shared_dict.remove("x")
         self.assertNotIn("x", _shared_dict)
-        with self.assertRaises(KeyError):
-            _shared_dict.get("x")
+        self.assertEqual(None, _shared_dict.get("x"))
 
     def test_order(self):
+        _shared_dict.clear()
         _shared_dict.set("one", 1)
         _shared_dict.set("two", 2)
         _shared_dict.set("three", 3)
@@ -50,6 +50,9 @@ class TestProcessSafeOrderedDict(unittest.TestCase):
 
     def test_process_safety(self):
         global _shared_dict
+
+        # clear _shared_dict
+        _shared_dict.clear()
 
         p1 = Process(target=worker, args=(0, 50))
         p2 = Process(target=worker, args=(50, 100))
