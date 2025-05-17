@@ -11,6 +11,8 @@ register_all_modules()
 # 模型配置与权重
 config_file = 'rtmo-l_16xb16-700e_crowdpose-640x640.py'
 checkpoint_file = 'rtmo-l_16xb16-700e_crowdpose-640x640-1008211f_20231211.pth'
+# config_file = 'td-hm_hrnet-w48_8xb32-210e_coco-256x192.py'
+# checkpoint_file = 'td-hm_hrnet-w48_8xb32-210e_coco-256x192-0e67c616_20220913.pth'
 
 # 加载模型
 model = init_model(config_file, checkpoint_file, device='cuda:0')
@@ -50,22 +52,25 @@ for _ in tqdm(range(total_frames)):
     # filter results
     keypoint_score_threshold = 0.3
     min_valid_kpts = 3  # 至少几个关键点得分高于阈值
-    min_score = 0.8  # 最小得分阈值
+    min_score = 0.2  # 最小得分阈值
     valid_results = []
     for res in results:
         kpts = res.pred_instances.keypoints  # shape: (num_kpts, 3)
-        scores = kpts[:, 2]
-        if scores.mean() < min_score:
+        scores = res.pred_instances.keypoint_scores  # shape: (num_kpts,)
+        max_score = scores.max()
+        mean_score = scores.mean()
+        if mean_score < min_score:
             continue
+
         valid_kpt_count = (scores > keypoint_score_threshold).sum()
         if valid_kpt_count >= min_valid_kpts:
             valid_results.append(res)
 
     # 可视化
     for result in valid_results:
-        kpts = res.pred_instances.keypoints  # shape: (num_kpts, 3)
-        track_id = int(res.pred_instances.id[0]) if hasattr(res.pred_instances, 'id') else -1
-        print(res.pred_instances)
+        # kpts = res.pred_instances.keypoints  # shape: (num_kpts, 3)
+        # track_id = int(res.pred_instances.id[0]) if hasattr(res.pred_instances, 'id') else -1
+        # print(res.pred_instances)
         # 过滤掉没有 track_id 的结果
         # if track_id == -1:
         #     continue
@@ -101,9 +106,10 @@ for _ in tqdm(range(total_frames)):
             wait_time=0,
             out_file=None  # 不保存到文件
         )
-
+    
     # 获取可视化结果图像
-    vis_frame = visualizer.get_image()
+    h,w,_ = frame.shape
+    vis_frame = visualizer.get_image()[:,w:,:] if valid_results else frame
 
     # 写入输出视频
     out_video.write(vis_frame)

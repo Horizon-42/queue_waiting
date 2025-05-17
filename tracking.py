@@ -29,7 +29,16 @@ while True:
     bboxes = []
     for res in results:
         bbox = res.pred_instances.bboxes[0]
-        bboxes.append(bbox)
+        # get class_id
+        print(res)
+        class_id = 0
+        # get score
+        score = res.pred_instances.bbox_scores[0]
+        # make tuple with bbox, score and class_id
+        bboxes.append((bbox, score, class_id))
+    print(bboxes)
+    print(len(bboxes))
+    # bboxes = np.array(bboxes).reshape(-1, 4)  # 转换为[[x1,y1,x2,y2], ...]格式
 
     # DeepSORT追踪
     # 输入格式是 [[x1,y1,x2,y2], ...]
@@ -48,7 +57,13 @@ while True:
             bx = res.pred_instances.bboxes[0]
             iou = _compute_iou(bx, ltrb)
             if iou > 0.5:
-                matched_kpts = res['keypoints']
+                kpts = res.pred_instances.keypoints[0]
+                kpts_scores = res.pred_instances.keypoint_scores[0].reshape(-1, 1)  # 变成列向量
+                print(kpts.shape)
+                print(kpts_scores.shape)
+                # horizon stack
+                matched_kpts = np.hstack((kpts, kpts_scores))
+                print(matched_kpts.shape)
                 break
 
         # 画跟踪框和ID
