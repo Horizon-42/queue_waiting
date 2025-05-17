@@ -18,6 +18,8 @@ checkpoint_file = 'rtmo-l_16xb16-700e_crowdpose-640x640-1008211f_20231211.pth'
 
 model = init_model(config_file, checkpoint_file, device='cuda:0')  # or device='cuda:0'
 
+
+
 # please prepare an image with person
 results = inference_topdown(model, 'demo.png')
 
