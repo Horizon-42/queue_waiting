@@ -82,7 +82,11 @@ def pipeline():
     res_video_writer.release()
 
     # person count
-    person_count = len(tracker1.tracked_objects) + len(tracker2.tracked_objects) + len(tracker3.tracked_objects)
+    # get the unique IDs from all trackers
+    all_ids = set()
+    for tracker in [tracker1, tracker2, tracker3]:
+        all_ids.update(tracker.tracked_objects.keys())
+    person_count = len(all_ids)
     print(f"Total number of unique persons tracked: {person_count}")
 
     # average time estimation
