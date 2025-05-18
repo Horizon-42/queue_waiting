@@ -198,7 +198,7 @@ if __name__ == "__main__":
     import os
 
     id_tracker = IDTracker()
-    video_path = "dataset/end.mp4"
+    video_path = "dataset/start.mp4"
     cap = cv2.VideoCapture(video_path)
     while cap.isOpened():
         ret, frame = cap.read()
