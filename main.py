@@ -49,18 +49,6 @@ def run_tracker(tracker, imgs_dir:str, range:tuple[int, int], video_writer):
             break
     cv2.destroyAllWindows()
 
-# def re_show(tracker, imgs_dir:str, range:tuple[int, int], video_writer):
-#     img_paths = get_img_paths(imgs_dir, range)
-#     for img_path in img_paths:
-#         img = cv2.imread(img_path)
-#         tracker.track(img)
-#         img_with_boxes = tracker.draw_boxes(img)
-#         video_writer.write(img_with_boxes)
-#         cv2.imshow("ID Tracker", img_with_boxes)
-#         if cv2.waitKey(1) == 27:
-#             break
-#     cv2.destroyAllWindows()
-
 def pipeline():
     # TODO multi process running
     process_video_path = "dataset/process.mp4"
