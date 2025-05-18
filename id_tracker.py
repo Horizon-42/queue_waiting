@@ -36,7 +36,7 @@ class IDTracker:
             # Normalize the features
             features = F.normalize(features, p=2, dim=1)
 
-            matched_id = self.match(features)
+            matched_id = self.match(features, box)
             if matched_id is not None:
                 matched_box = self.tracked_objects[matched_id].bbox
                 # compute iou
@@ -161,8 +161,10 @@ class IDTracker:
         iou = intersection_area / float(box1_area + box2_area - intersection_area)
         return iou
     
-    def match(self, features):
+    def match(self, features, bbox):
         # Compare the features with the tracked objects
+        HARD_THRESH = 0.1
+        SOFT_THRESH = 0.3
 
         past_features = []
         obj_ids = []
@@ -178,12 +180,17 @@ class IDTracker:
         min_idx = np.argmin(dists)
         min_dist = dists[min_idx]
         print(f"min_dist: {min_dist.item()}, min_idx: {min_idx.item()}")
-        is_match = min_dist.item() < 0.3
-        if is_match:
-            matched_id = obj_ids[min_idx.item()]
-            return matched_id
-        else:
-            return None
+        
+        if min_dist.item() < HARD_THRESH:
+            return obj_ids[min_idx.item()]
+        
+        if min_dist.item() < SOFT_THRESH:
+            return obj_ids[min_idx.item()]
+            # check if the bbox is similar
+            matched_box = self.tracked_objects[obj_ids[min_idx.item()]].bbox
+            if self.box_iou(bbox, matched_box) > 0.5:
+                return obj_ids[min_idx.item()]
+        return None
 
     def compare_features(self, features1, features2):
         # can use cosine similarity or Euclidean distance

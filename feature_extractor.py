@@ -9,8 +9,8 @@ class FeatureExtractor(object):
     def __init__(self):
         # build the config
         cfg = get_cfg()
-        cfg.merge_from_file("/home/supercomputing/studys/fast-reid/configs/Market1501/sbs_R101-ibn.yml")
-        cfg.merge_from_list(["MODEL.WEIGHTS", "models/market_sbs_R101-ibn.pth",
+        cfg.merge_from_file("/home/supercomputing/studys/fast-reid/configs/Market1501/bagtricks_R101-ibn.yml")
+        cfg.merge_from_list(["MODEL.WEIGHTS", "models/market_bot_R101-ibn.pth",
                              "MODEL.DEVICE", "cuda"])
         cfg.freeze()
 
