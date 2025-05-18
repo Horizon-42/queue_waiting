@@ -6,7 +6,7 @@ mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 mp_drawing = mp.solutions.drawing_utils
 
-video_path = "dataset/end.mp4"
+video_path = "dataset/start.mp4"
 cap = cv2.VideoCapture(video_path)
 # cap = cv2.VideoCapture(0)
 
