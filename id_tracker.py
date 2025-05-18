@@ -202,19 +202,44 @@ class IDTracker:
         return frame
 
 if __name__ == "__main__":
-    video_path = "dataset/end.mp4"
-    cap = cv2.VideoCapture(video_path)
+    import os
+
+    # get the last 100 frames of the images
+    start_image_dir = "dataset/images/start"
+    start_image_pathes = [os.path.join(start_image_dir, f) for f in os.listdir(start_image_dir) if f.endswith('.jpg')]
+    last_100_frames_start = start_image_pathes[-100:]
+
+    mid_image_dir = "dataset/images/mid"
+    mid_image_pathes = [os.path.join(mid_image_dir, f) for f in os.listdir(mid_image_dir) if f.endswith('.jpg')]
+    first_100_frames_mid = mid_image_pathes[:100]
+
+    last_100_frames_mid = mid_image_pathes[-100:]
+
+    end_image_dir = "dataset/images/end"
+    end_image_pathes = [os.path.join(end_image_dir, f) for f in os.listdir(end_image_dir) if f.endswith('.jpg')]
+    first_100_frames_end = end_image_pathes[:100]
+
     id_tracker = IDTracker()
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+    for i in range(100):
+        start_image = cv2.imread(last_100_frames_start[i])
+        mid_image = cv2.imread(first_100_frames_mid[i])
+        # end_image = cv2.imread(first_100_frames_end[i])
 
-        tracked_objects = id_tracker.track(frame)
-        frame_with_boxes = id_tracker.draw_boxes(frame)
+        
+        id_tracker.track(start_image)
+        id_tracker.track(mid_image)
+        # id_tracker.track(end_image)
 
-        cv2.imshow("ID Tracking", frame_with_boxes)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        # draw boxes
+        start_image_with_boxes = id_tracker.draw_boxes(start_image)
+        mid_image_with_boxes = id_tracker.draw_boxes(mid_image)
+        # end_image_with_boxes = id_tracker.draw_boxes(end_image)
+
+        # imshow
+        cv2.imshow("start", start_image_with_boxes)
+        cv2.waitKey(100)
+        cv2.imshow("mid", mid_image_with_boxes)
+
+        if cv2.waitKey(100) == 27:
             break
-    cap.release()
     cv2.destroyAllWindows()
