@@ -23,7 +23,7 @@ class IDTracker:
         self.people_extractor = PeopleExtractor()
         self.feature_extractor = FeatureExtractor()
         self.tracked_objects:dict[int, TrackedObject] = {}  # Dictionary to store tracked objects
-        self.next_id = 0  # Next ID to assign to a new object
+        self.next_id = camera_id*1000  # Next ID to assign to a new object
         self.now_seen = 0  # Counter for the number of frames seen
 
     def track(self, frame):
