@@ -193,13 +193,10 @@ class IDTracker:
             cv2.putText(frame, f'ID: {obj_id}', (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         return frame
-
-if __name__ == "__main__":
-    import os
-
-    id_tracker = IDTracker()
-    video_path = "dataset/start.mp4"
+    
+def tet_video(video_path):
     cap = cv2.VideoCapture(video_path)
+    id_tracker = IDTracker()
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -217,3 +214,9 @@ if __name__ == "__main__":
             break
     cap.release()
     cv2.destroyAllWindows()
+
+def test_images():
+    pass
+
+if __name__ == "__main__":
+    tet_video("dataset/start.mp4")
