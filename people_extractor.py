@@ -12,7 +12,9 @@ class PeopleExtractor(object):
     def extract(self, original_image):
         results = self.model(original_image, conf=0.5, verbose=False)  # Perform inference on the image
         boxes = results[0].boxes.xyxy.cpu().numpy()  # Get bounding boxes
-        # get classes
+        # long_boxes = (boxes[:,3] - boxes[:,1])>300  # Calculate the height of the bounding boxes
+        # boxes[long_boxes,3] = boxes[long_boxes,1] + 0.5*(boxes[long_boxes,3] - boxes[long_boxes,1])  # Adjust the height of the bounding boxes
+        # # get classes
         classes = results[0].boxes.cls.cpu().numpy()
         # get confidence
         confs = results[0].boxes.conf.cpu().numpy()
