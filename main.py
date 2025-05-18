@@ -90,11 +90,20 @@ def pipeline():
     print(f"Total number of unique persons tracked: {person_count}")
 
     # average time estimation
+    object_duration = {}
+    for obj in tracker1.tracked_objects.values():
+        object_duration[obj.id] = [obj.first_seen, obj.last_seen]
+    for obj in tracker3.tracked_objects.values():
+        if obj.id in object_duration:
+            object_duration[obj.id][1] = max(object_duration[obj.id][1], obj.last_seen)
+        else:
+            object_duration[obj.id] = [obj.first_seen, obj.last_seen]
+    # calculate the average frame count for each person
     averg_frame_count = 0
-    for tracker in [tracker1, tracker2, tracker3]:
-        for obj in tracker.tracked_objects.values():
-            averg_frame_count += (obj.last_seen - obj.first_seen)
-    averg_frame_count /= person_count
+    for obj_id, (first_seen, last_seen) in object_duration.items():
+        frame_count = last_seen - first_seen
+        averg_frame_count += frame_count    
+    averg_frame_count /= len(object_duration)
     print(f"Average time estimation for each person: {averg_frame_count} frames")
 
 
