@@ -28,7 +28,7 @@ class FeatureExtractor(object):
         image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))[None]
         features = self.predictor(image)
         # normalize the features
-        # features = torch.nn.functional.normalize(features, p=2, dim=1)
+        features = torch.nn.functional.normalize(features, p=2, dim=1)
         return features
 
 

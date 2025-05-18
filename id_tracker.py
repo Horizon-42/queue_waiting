@@ -175,13 +175,6 @@ class IDTracker:
         
         if min_dist.item() < HARD_THRESH:
             return obj_ids[min_idx.item()]
-        
-        # if min_dist.item() < SOFT_THRESH:
-        #     return obj_ids[min_idx.item()]
-        #     # check if the bbox is similar
-        #     matched_box = self.tracked_objects[obj_ids[min_idx.item()]].bbox
-        #     if self.box_iou(bbox, matched_box) > 0.5:
-        #         return obj_ids[min_idx.item()]
         return None
 
     def compare_features(self, features1, features2):
