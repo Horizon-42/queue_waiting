@@ -9,6 +9,7 @@ from fastreid.evaluation.rerank import re_ranking
 
 @dataclass
 class TrackedObject:
+    camera_id: int
     id: int
     bbox: list
     last_seen: int
@@ -17,7 +18,8 @@ class TrackedObject:
 
 
 class IDTracker:
-    def __init__(self):
+    def __init__(self, camera_id:int):
+        self.camera_id = camera_id
         self.people_extractor = PeopleExtractor()
         self.feature_extractor = FeatureExtractor()
         self.tracked_objects:dict[int, TrackedObject] = {}  # Dictionary to store tracked objects
@@ -43,6 +45,7 @@ class IDTracker:
     def create_new_object(self, box, features):
         # Assign a new ID to the new object
         self.tracked_objects[self.next_id] = TrackedObject(
+            camera_id=self.camera_id,
             id=self.next_id,
             bbox=box,
             last_seen=self.now_seen,
