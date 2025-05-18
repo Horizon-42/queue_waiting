@@ -1,4 +1,5 @@
 # Queue Waiting
+[By Arun Singh Rawat, DongXu Liu, Luca Klingert, Sahar Moghtaderi, Prahas Hegde](https://github.com/Horizon-42/queue_waiting/tree/final)
 
 ## Task 1: Conceptualize the Camera Setup
 
