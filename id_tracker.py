@@ -32,14 +32,7 @@ class IDTracker:
 
             matched_id = self.match(features, box)
             if matched_id is not None:
-                matched_box = self.tracked_objects[matched_id].bbox
-                # compute iou
-                iou = self.box_iou(box, matched_box)
-                if iou > 0.5:
-                    self.update_object(matched_id, box, features)
-                else:
-                    # Assign a new ID to the new object
-                    self.create_new_object(box, features)
+                self.update_object(matched_id, box, features)
             else:
                 # Assign a new ID to the new object
                 self.create_new_object(box, features)
@@ -204,42 +197,23 @@ class IDTracker:
 if __name__ == "__main__":
     import os
 
-    # get the last 100 frames of the images
-    start_image_dir = "dataset/images/start"
-    start_image_pathes = [os.path.join(start_image_dir, f) for f in os.listdir(start_image_dir) if f.endswith('.jpg')]
-    last_100_frames_start = start_image_pathes[-100:]
-
-    mid_image_dir = "dataset/images/mid"
-    mid_image_pathes = [os.path.join(mid_image_dir, f) for f in os.listdir(mid_image_dir) if f.endswith('.jpg')]
-    first_100_frames_mid = mid_image_pathes[:100]
-
-    last_100_frames_mid = mid_image_pathes[-100:]
-
-    end_image_dir = "dataset/images/end"
-    end_image_pathes = [os.path.join(end_image_dir, f) for f in os.listdir(end_image_dir) if f.endswith('.jpg')]
-    first_100_frames_end = end_image_pathes[:100]
-
     id_tracker = IDTracker()
-    for i in range(100):
-        start_image = cv2.imread(last_100_frames_start[i])
-        mid_image = cv2.imread(first_100_frames_mid[i])
-        # end_image = cv2.imread(first_100_frames_end[i])
+    video_path = "dataset/end.mp4"
+    cap = cv2.VideoCapture(video_path)
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-        
-        id_tracker.track(start_image)
-        id_tracker.track(mid_image)
-        # id_tracker.track(end_image)
+        # track
+        id_tracker.track(frame)
 
         # draw boxes
-        start_image_with_boxes = id_tracker.draw_boxes(start_image)
-        mid_image_with_boxes = id_tracker.draw_boxes(mid_image)
-        # end_image_with_boxes = id_tracker.draw_boxes(end_image)
+        frame_with_boxes = id_tracker.draw_boxes(frame)
 
         # imshow
-        cv2.imshow("start", start_image_with_boxes)
-        cv2.waitKey(100)
-        cv2.imshow("mid", mid_image_with_boxes)
-
-        if cv2.waitKey(100) == 27:
+        cv2.imshow("ID Tracker", frame_with_boxes)
+        if cv2.waitKey(1) == 27:
             break
+    cap.release()
     cv2.destroyAllWindows()
