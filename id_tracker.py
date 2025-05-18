@@ -13,6 +13,7 @@ class TrackedObject:
     bbox: list
     last_seen: int
     features: torch.Tensor
+    features_buffer:list[torch.Tensor] = None
 
 
 class IDTracker:
@@ -45,7 +46,8 @@ class IDTracker:
             id=self.next_id,
             bbox=box,
             last_seen=self.now_seen,
-            features=features
+            features=features,
+            features_buffer=[features]
         )
         self.next_id += 1
     
@@ -53,7 +55,11 @@ class IDTracker:
         # Update the existing tracked object
         self.tracked_objects[obj_id].bbox = box
         self.tracked_objects[obj_id].last_seen = self.now_seen
-        self.tracked_objects[obj_id].features = features
+        # self.tracked_objects[obj_id].features = features
+        self.tracked_objects[obj_id].features_buffer.append(features)
+        if len(self.tracked_objects[obj_id].features_buffer) > 5:
+            self.tracked_objects[obj_id].features_buffer.pop(0)
+            self.tracked_objects[obj_id].features = torch.mean(torch.stack(self.tracked_objects[obj_id].features_buffer), dim=0)
     
     def match_list(self, frame_features, boxes):
         """
@@ -150,8 +156,7 @@ class IDTracker:
     
     def match(self, features, bbox):
         # Compare the features with the tracked objects
-        HARD_THRESH = 0.1
-        SOFT_THRESH = 0.3
+        HARD_THRESH = 0.3
 
         past_features = []
         obj_ids = []
@@ -171,12 +176,12 @@ class IDTracker:
         if min_dist.item() < HARD_THRESH:
             return obj_ids[min_idx.item()]
         
-        if min_dist.item() < SOFT_THRESH:
-            return obj_ids[min_idx.item()]
-            # check if the bbox is similar
-            matched_box = self.tracked_objects[obj_ids[min_idx.item()]].bbox
-            if self.box_iou(bbox, matched_box) > 0.5:
-                return obj_ids[min_idx.item()]
+        # if min_dist.item() < SOFT_THRESH:
+        #     return obj_ids[min_idx.item()]
+        #     # check if the bbox is similar
+        #     matched_box = self.tracked_objects[obj_ids[min_idx.item()]].bbox
+        #     if self.box_iou(bbox, matched_box) > 0.5:
+        #         return obj_ids[min_idx.item()]
         return None
 
     def compare_features(self, features1, features2):
@@ -215,8 +220,22 @@ def tet_video(video_path):
     cap.release()
     cv2.destroyAllWindows()
 
-def test_images():
-    pass
+def test_images(img_dir:str, range:tuple[int, int]):
+    import os
+    img_paths = [os.path.join(img_dir, f) for f in os.listdir(img_dir) if f.endswith('.jpg')]
+    # sort the image paths
+    img_paths.sort(key=lambda x: int(x.split("/")[-1].split(".")[0].split("_")[-1]))
+    img_paths = img_paths[range[0]:range[1]]
+    id_tracker = IDTracker()
+    for img_path in img_paths:
+        img = cv2.imread(img_path)
+        id_tracker.track(img)
+        img_with_boxes = id_tracker.draw_boxes(img)
+        cv2.imshow("ID Tracker", img_with_boxes)
+        if cv2.waitKey(1) == 27:
+            break
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    tet_video("dataset/start.mp4")
+    # tet_video("dataset/start.mp4")
+    test_images("dataset/images/start", (0, 300))
