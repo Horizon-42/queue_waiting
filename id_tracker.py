@@ -12,6 +12,7 @@ class TrackedObject:
     camera_id: int
     id: int
     bbox: list
+    first_seen: int
     last_seen: int
     features: torch.Tensor
     features_buffer:list[torch.Tensor] = None
@@ -48,6 +49,7 @@ class IDTracker:
             camera_id=self.camera_id,
             id=self.next_id,
             bbox=box,
+            first_seen=self.now_seen,
             last_seen=self.now_seen,
             features=features,
             features_buffer=[features]
