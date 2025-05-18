@@ -11,6 +11,7 @@ class PeopleExtractor(object):
 
     def extract(self, original_image):
         results = self.model(original_image, conf=0.5, verbose=False)  # Perform inference on the image
+        masks = results[0].masks.data.cpu().numpy()  # Get segmentation masks
         boxes = results[0].boxes.xyxy.cpu().numpy()  # Get bounding boxes
         classes = results[0].boxes.cls.cpu().numpy()
         # get confidence
@@ -18,13 +19,22 @@ class PeopleExtractor(object):
         # Filter boxes for people (class 0)
         boxes = boxes[classes == 0]
         confs = confs[classes == 0]
+        masks = masks[classes == 0]
         # compute human images
+        for mask in masks:
+            mask = np.array(mask*255, dtype=np.uint8)
+            mask = cv2.resize(mask, (original_image.shape[1], original_image.shape[0]), interpolation=cv2.INTER_CUBIC)
+            mask = np.expand_dims(mask, axis=-1)
+            mask = np.concatenate([mask, mask, mask], axis=-1)
+            original_image = cv2.bitwise_and(original_image, mask)
+            cv2.imshow("mask", mask)
         imgs = []
         for box in boxes:
             x1, y1, x2, y2 = box
             person_image = original_image[int(y1):int(y2), int(x1):int(x2)]
             #TODO 将非mask区域设为0
             imgs.append(person_image)
+            cv2.imshow("person", person_image)
         return boxes, imgs
     def draw_boxes(self, image, boxes):
 
