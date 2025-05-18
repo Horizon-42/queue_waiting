@@ -24,14 +24,8 @@ class IDTracker:
         self.now_seen = 0  # Counter for the number of frames seen
 
     def track(self, frame):
-        boxes = self.people_extractor.extract(frame)
-        for box in boxes:
-            x1, y1, x2, y2 = box
-
-            # Extract the person from the frame
-            person_image = frame[int(y1):int(y2), int(x1):int(x2)]
-            # cv2.imshow("Person", person_image)
-            # Extract features for the person
+        boxes, imgs = self.people_extractor.extract(frame)
+        for box,person_image in zip(boxes, imgs):
             features = self.feature_extractor.extract(person_image)
             # Normalize the features
             features = F.normalize(features, p=2, dim=1)
@@ -179,7 +173,7 @@ class IDTracker:
 
         min_idx = np.argmin(dists)
         min_dist = dists[min_idx]
-        print(f"min_dist: {min_dist.item()}, min_idx: {min_idx.item()}")
+        # print(f"min_dist: {min_dist.item()}, min_idx: {min_idx.item()}")
         
         if min_dist.item() < HARD_THRESH:
             return obj_ids[min_idx.item()]

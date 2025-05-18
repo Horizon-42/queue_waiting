@@ -21,7 +21,13 @@ class PeopleExtractor(object):
         confs = confs[classes == 0]
         classes = classes[classes == 0]
         # return np.hstack((boxes, confs[:, np.newaxis], classes[:, np.newaxis]))  # Combine boxes, confidence, and classes
-        return boxes
+        # compute human images
+        imgs = []
+        for box in boxes:
+            x1, y1, x2, y2 = box
+            person_image = original_image[int(y1):int(y2), int(x1):int(x2)]
+            imgs.append(person_image)
+        return boxes, imgs
     def draw_boxes(self, image, boxes):
 
         for box in boxes:

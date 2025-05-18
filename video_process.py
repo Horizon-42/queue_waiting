@@ -4,6 +4,7 @@ from mmpose.visualization import PoseLocalVisualizer
 import cv2
 import os
 from tqdm import tqdm
+from people_extractor import PeopleExtractor
 
 # 初始化 MMPose 模块
 register_all_modules()
@@ -22,7 +23,7 @@ visualizer = PoseLocalVisualizer()
 visualizer.set_dataset_meta(model.dataset_meta)
 
 # 输入输出路径
-video_path = 'dataset/start.mp4'
+video_path = 'dataset/end.mp4'
 output_path = 'output_video.mp4'
 out_put_dir = "results"
 if not os.path.exists(out_put_dir):
@@ -38,6 +39,8 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 # 设置视频写入器
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # 或 'XVID'，根据需求
 out_video = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+
 
 # 逐帧处理
 print("Processing video...")
