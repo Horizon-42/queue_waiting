@@ -161,7 +161,8 @@ class IDTracker:
     
     def match(self, features, bbox):
         # Compare the features with the tracked objects
-        HARD_THRESH = 0.3
+        # HARD_THRESH = 0.3 for cosine similarity
+        HARD_THRESH = 0.7
 
         past_features = []
         obj_ids = []
@@ -172,10 +173,20 @@ class IDTracker:
             return None
         past_features = torch.cat(past_features, dim=0) 
 
-        dists = [1-F.cosine_similarity(features, past_feature)[0] for past_feature in past_features]
+        # dists = [1-F.cosine_similarity(features, past_feature)[0] for past_feature in past_features]
 
-        min_idx = np.argmin(dists)
-        min_dist = dists[min_idx]
+        # compute euclidean distance
+        euclidean_dists = [torch.norm(features - past_feature) for past_feature in past_features]
+        # get the minimum distance
+        min_euclidean_dist = min(euclidean_dists)
+        print(f"min_euclidean_dist: {min_euclidean_dist.item()}")
+        max_euclidean_dist = max(euclidean_dists)
+        print(f"max_euclidean_dist: {max_euclidean_dist.item()}")
+        mean_euclidean_dist = sum(euclidean_dists) / len(euclidean_dists)
+        print(f"mean_euclidean_dist: {mean_euclidean_dist.item()}")
+
+        min_idx = np.argmin(euclidean_dists)
+        min_dist = euclidean_dists[min_idx]
         # print(f"min_dist: {min_dist.item()}, min_idx: {min_idx.item()}")
         
         if min_dist.item() < HARD_THRESH:
