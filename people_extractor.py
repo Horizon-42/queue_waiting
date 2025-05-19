@@ -13,6 +13,17 @@ class PeopleExtractor(object):
         results = self.model(original_image, conf=0.5, verbose=False)  # Perform inference on the image
         # masks = results[0].masks.data.cpu().numpy()  # Get segmentation masks
         boxes = results[0].boxes.xyxy.cpu().numpy()  # Get bounding boxes
+        # 计算每个框的高度
+        # heights = boxes[:, 3] - boxes[:, 1]
+        # widths = boxes[:, 2] - boxes[:, 0]
+
+        # # # 找到高度大于 300 的框
+        # mask = heights > widths*2.3
+
+        # # # 计算新的 y2 值：减少高度的一半，但保持总高度不少于 300
+        # new_heights = heights[mask] / 2
+        # boxes[mask, 3] = boxes[mask, 1] + new_heights
+        
         classes = results[0].boxes.cls.cpu().numpy()
         # get confidence
         confs = results[0].boxes.conf.cpu().numpy()

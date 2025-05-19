@@ -19,7 +19,7 @@ def match_across_cameras(tracker1, tracker2):
     q_q_dist = 1 - torch.matmul(q_feats, q_feats.T)
     g_g_dist = 1 - torch.matmul(g_feats, g_feats.T)
     reranked_dist = re_ranking(q_g_dist, q_q_dist, g_g_dist)
-    DIST_THRESHOLD = 0.5  # 可调参数：距离小于该阈值才认为是匹配
+    DIST_THRESHOLD = 0.7  # 可调参数：距离小于该阈值才认为是匹配
     for i in range(reranked_dist.shape[0]):
         dist_row = reranked_dist[i]  # 当前特征与所有历史目标的距离
         min_idx = np.argmin(dist_row)
@@ -75,7 +75,7 @@ def pipeline():
     process_video_writer.release()
 
     res_video_path = "dataset/res.mp4"
-    res_video_writer = cv2.VideoWriter(res_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 30, (1280, 720))
+    res_video_writer = cv2.VideoWriter(res_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 30, (1280, 1280))
     run_tracker(tracker1, "dataset/images/start", (0, 600), res_video_writer)
     run_tracker(tracker2, "dataset/images/mid", (0, 550), res_video_writer)
     run_tracker(tracker3, "dataset/images/end", (0, 700), res_video_writer)
