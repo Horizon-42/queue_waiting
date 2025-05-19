@@ -19,7 +19,8 @@ def match_across_cameras(tracker1, tracker2):
     q_q_dist = 1 - torch.matmul(q_feats, q_feats.T)
     g_g_dist = 1 - torch.matmul(g_feats, g_feats.T)
     reranked_dist = re_ranking(q_g_dist, q_q_dist, g_g_dist)
-    DIST_THRESHOLD = 0.7  # 可调参数：距离小于该阈值才认为是匹配
+    print(np.mean(reranked_dist))
+    DIST_THRESHOLD = 0.75  # 可调参数：距离小于该阈值才认为是匹配
     for i in range(reranked_dist.shape[0]):
         dist_row = reranked_dist[i]  # 当前特征与所有历史目标的距离
         min_idx = np.argmin(dist_row)
@@ -57,28 +58,30 @@ def pipeline():
     tracker1 = IDTracker(camera_id=0)
     run_tracker(tracker1, "dataset/images/start", (0, 300), process_video_writer)
     tracker2 = IDTracker(camera_id=1)
-    run_tracker(tracker2, "dataset/images/mid", (0, 550), process_video_writer)
-    matched_pairs = match_across_cameras(tracker1, tracker2)
+    run_tracker(tracker1, "dataset/images/mid", (0, 550), process_video_writer)
+    # matched_pairs = match_across_cameras(tracker1, tracker2)
+    # print(f"length of matched pairs: {len(matched_pairs)}")
     # update the object IDs in tracker2 based on matched pairs
-    for q_id, g_id in matched_pairs:
-        if g_id in tracker1.tracked_objects:
-            tracker2.tracked_objects[q_id].id = g_id
+    # for q_id, g_id in matched_pairs:
+    #     if g_id in tracker1.tracked_objects:
+    #         tracker2.tracked_objects[q_id].id = g_id
 
     tracker3 = IDTracker(camera_id=2)
-    run_tracker(tracker3, "dataset/images/end", (0, 800),process_video_writer)
-    matched_pairs = match_across_cameras(tracker2, tracker3)
+    run_tracker(tracker1, "dataset/images/end", (0, 650),process_video_writer)
+    # matched_pairs = match_across_cameras(tracker2, tracker3)
     # update the object IDs in tracker3 based on matched pairs
-    for q_id, g_id in matched_pairs:
-        if g_id in tracker2.tracked_objects:
-            tracker3.tracked_objects[q_id].id = g_id
+    # for q_id, g_id in matched_pairs:
+    #     if g_id in tracker2.tracked_objects:
+    #         tracker3.tracked_objects[q_id].id = g_id
+    exit(0)
 
     process_video_writer.release()
 
     res_video_path = "dataset/res.mp4"
     res_video_writer = cv2.VideoWriter(res_video_path, cv2.VideoWriter_fourcc(*'mp4v'), 30, (1280, 1280))
-    run_tracker(tracker1, "dataset/images/start", (0, 600), res_video_writer)
+    run_tracker(tracker1, "dataset/images/start", (0, 300), res_video_writer)
     run_tracker(tracker2, "dataset/images/mid", (0, 550), res_video_writer)
-    run_tracker(tracker3, "dataset/images/end", (0, 700), res_video_writer)
+    run_tracker(tracker3, "dataset/images/end", (0, 650), res_video_writer)
     res_video_writer.release()
 
     # person count

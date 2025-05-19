@@ -4,6 +4,7 @@ import torch
 from fastreid.engine import DefaultPredictor
 from fastreid.config import get_cfg
 from fastreid.utils.logger import setup_logger
+import numpy as np
 
 class FeatureExtractor(object):
     def __init__(self):
@@ -30,7 +31,6 @@ class FeatureExtractor(object):
         # normalize the features
         # features = torch.nn.functional.normalize(features, p=2, dim=1)
         return features
-
 
 
 if __name__ == "__main__":

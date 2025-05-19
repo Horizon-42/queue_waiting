@@ -179,12 +179,12 @@ class IDTracker:
         # compute euclidean distance
         # euclidean_dists = [torch.norm(features - past_feature) for past_feature in past_features]
         # get the minimum distance
-        min_euclidean_dist = min(dists)
-        print(f"min_euclidean_dist: {min_euclidean_dist.item()}")
-        max_euclidean_dist = max(dists)
-        print(f"max_euclidean_dist: {max_euclidean_dist.item()}")
-        mean_euclidean_dist = sum(dists) / len(dists)
-        print(f"mean_euclidean_dist: {mean_euclidean_dist.item()}")
+        # min_euclidean_dist = min(dists)
+        # print(f"min_euclidean_dist: {min_euclidean_dist.item()}")
+        # max_euclidean_dist = max(dists)
+        # print(f"max_euclidean_dist: {max_euclidean_dist.item()}")
+        # mean_euclidean_dist = sum(dists) / len(dists)
+        # print(f"mean_euclidean_dist: {mean_euclidean_dist.item()}")
 
         min_idx = np.argmin(dists)
         min_dist = dists[min_idx]
