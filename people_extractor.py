@@ -27,9 +27,10 @@ class PeopleExtractor(object):
         classes = results[0].boxes.cls.cpu().numpy()
         # get confidence
         confs = results[0].boxes.conf.cpu().numpy()
+        mask = (confs > 0.8) & (classes == 0)
         # Filter boxes for people (class 0)
-        boxes = boxes[classes == 0]
-        confs = confs[classes == 0]
+        boxes = boxes[mask]
+        confs = confs[mask]
         # masks = masks[classes == 0]
         imgs = []
         for box in boxes:
