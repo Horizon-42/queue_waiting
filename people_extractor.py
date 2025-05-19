@@ -65,7 +65,9 @@ class PeopleExtractor(object):
         poses = results[0].keypoints.cpu().numpy()
         # Filter poses for people (class 0)
         poses = poses[mask].data
-        print(poses)
+        # TODO check if have valid pose
+        # 0 nose, 1 left eye, 2 right eye, 3 left ear, 4 right ear, 5 left shoulder, 6 right shoulder,
+
         # horizontal stack boxes, confs, classes
         boxes = np.hstack((boxes, confs.reshape(-1, 1), classes.reshape(-1, 1)))
         return boxes, poses
