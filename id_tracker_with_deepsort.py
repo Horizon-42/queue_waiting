@@ -36,9 +36,8 @@ class IDTracker:
             if not track.is_confirmed():
                 continue
             track_id = track.track_id
-            print(f"Track ID: {track_id}, Box: {track.to_ltrb()}, Features: {len(track.features)}")
             if track_id not in self.tracked_infos:
-                self.tracked_infos[track_id] = TrackInfo(track_id=track_id, view_id=self.camera_id, 
+                self.tracked_infos[track_id] = TrackInfo(id=-1, view_id=self.camera_id, 
                                                          in_view_time=self.current_frame, 
                                                          out_view_time=self.current_frame, feature=track.features[0])
             else:
@@ -49,9 +48,10 @@ class IDTracker:
                 track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
 
             l, t, r, b = track.to_ltrb()
+            track_info = self.tracked_infos[track_id]
             cv2.rectangle(frame, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
-            cv2.putText(frame, f"ID: {track_id}", (int(l), int(t) - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            cv2.putText(frame, f"{track_info.id} at view {self.camera_id} : {track_id}", (int(l), int(t) - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
         return frame, tracks
             
 

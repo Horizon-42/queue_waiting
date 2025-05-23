@@ -5,7 +5,7 @@ import numpy as np
 
 @dataclass
 class TrackInfo:
-    track_id:int
+    id:int
     view_id:int
     in_view_time:int
     out_view_time:int
@@ -18,9 +18,7 @@ class Person:
     out_line_time:int
     is_waitting:bool
 
-    track_info1:TrackInfo = None
-    track_info2:TrackInfo = None
-    track_info3:TrackInfo = None
+    track_infos:dict[int, TrackInfo] = None
 
 
 class ThreadSafeOrderedDict:
