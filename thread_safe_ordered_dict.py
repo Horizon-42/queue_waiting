@@ -4,13 +4,23 @@ from threading import Lock
 import numpy as np
 
 @dataclass
-class Person:
-    ID:int
-    InTime:int
-    OutTime:int
-    IsWaitting:bool
+class TrackInfo:
+    track_id:int
+    view_id:int
+    in_view_time:int
+    out_view_time:int
+    feature:np.ndarray = None
 
-    CameraFeatures:dict
+@dataclass
+class Person:
+    id:int
+    in_line_time:int
+    out_line_time:int
+    is_waitting:bool
+
+    track_info1:TrackInfo = None
+    track_info2:TrackInfo = None
+    track_info3:TrackInfo = None
 
 
 class ThreadSafeOrderedDict:

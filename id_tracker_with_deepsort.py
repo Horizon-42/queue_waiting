@@ -2,7 +2,7 @@ import cv2
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from people_extractor import PeopleExtractor
 from feature_extractor import FeatureExtractor
-from thread_safe_ordered_dict import WaitingQueue
+from thread_safe_ordered_dict import ThreadSafeOrderedDict,TrackInfo
 
 class IDTracker:
     def __init__(self, camera_id:int):
@@ -10,9 +10,14 @@ class IDTracker:
         self.people_extractor = PeopleExtractor()
         self.feature_extractor = FeatureExtractor()
         # 初始化 Deep SORT
-        self.tracker = DeepSort(max_age=60, n_init=3, nms_max_overlap=1.0)
+        self.tracker = DeepSort(max_age=30, n_init=5, nms_max_overlap=0.7)
+
+        self.tracked_infos:dict[int, TrackInfo] = {}
+
+        self.current_frame = 0
     
     def process_frame(self, frame):
+        self.current_frame += 1
         # YOLOv5 目标检测（只检测人类）
         detections, poses = self.people_extractor.extract_boxes_with_poses(frame)
         # make images
@@ -30,6 +35,19 @@ class IDTracker:
         for track in tracks:
             if not track.is_confirmed():
                 continue
+            track_id = track.track_id
+            print(f"Track ID: {track_id}, Box: {track.to_ltrb()}, Features: {len(track.features)}")
+            if track_id not in self.tracked_infos:
+                self.tracked_infos[track_id] = TrackInfo(track_id=track_id, view_id=self.camera_id, 
+                                                         in_view_time=self.current_frame, out_view_time=-1, feature=track.features[0])
+            else:
+                self.tracked_infos[track_id].in_view_time += 1
+
+            l, t, r, b = track.to_ltrb()
+            cv2.rectangle(frame, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
+            cv2.putText(frame, f"ID: {track_id}", (int(l), int(t) - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        return frame, tracks
             
 
 
