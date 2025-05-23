@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from collections import OrderedDict
+# from collections import OrderedDict
 from threading import Lock
 import numpy as np
 
@@ -10,12 +10,13 @@ class Person:
     OutTime:int
     IsWaitting:bool
 
-    CrossFeature:np.ndarray
+    CameraFeatures:dict
 
 
 class ThreadSafeOrderedDict:
     def __init__(self):
-        self.od = OrderedDict()
+        # self.od = OrderedDict()
+        self.od = dict()
         self.lock = Lock()
 
     def set(self, key, value:Person):
