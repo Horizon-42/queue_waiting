@@ -39,9 +39,14 @@ class IDTracker:
             print(f"Track ID: {track_id}, Box: {track.to_ltrb()}, Features: {len(track.features)}")
             if track_id not in self.tracked_infos:
                 self.tracked_infos[track_id] = TrackInfo(track_id=track_id, view_id=self.camera_id, 
-                                                         in_view_time=self.current_frame, out_view_time=-1, feature=track.features[0])
+                                                         in_view_time=self.current_frame, 
+                                                         out_view_time=self.current_frame, feature=track.features[0])
             else:
-                self.tracked_infos[track_id].in_view_time += 1
+                track_info = self.tracked_infos[track_id]
+                track_info.out_view_time = self.current_frame
+                duration = track_info.out_view_time - track_info.in_view_time
+                # update the newest feature
+                track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
 
             l, t, r, b = track.to_ltrb()
             cv2.rectangle(frame, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
