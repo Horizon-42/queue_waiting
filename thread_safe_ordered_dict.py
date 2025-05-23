@@ -15,11 +15,10 @@ class Person:
 
 class ThreadSafeOrderedDict:
     def __init__(self):
-        # self.od = OrderedDict()
         self.od = dict()
         self.lock = Lock()
 
-    def set(self, key, value:Person):
+    def set(self, key, value:object):
         with self.lock:
             self.od[key] = value
 
@@ -35,6 +34,10 @@ class ThreadSafeOrderedDict:
         with self.lock:
             return self.od.popitem(last=False)
 
+    def keys(self):
+        with self.lock:
+            return list(self.od.keys())
+    
     def __contains__(self, key):
         with self.lock:
             return key in self.od
@@ -42,9 +45,5 @@ class ThreadSafeOrderedDict:
     def __len__(self):
         with self.lock:
             return len(self.od)
-
-    def keys(self):
-        with self.lock:
-            return list(self.od.keys())
         
 
