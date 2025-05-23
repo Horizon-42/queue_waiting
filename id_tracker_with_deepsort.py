@@ -2,7 +2,7 @@ import cv2
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from people_extractor import PeopleExtractor
 from feature_extractor import FeatureExtractor
-# from the
+from waitting_queue import WaitingQueue
 
 class IDTracker:
     def __init__(self, camera_id:int):
@@ -31,5 +31,5 @@ class IDTracker:
             if not track.is_confirmed():
                 continue
             
-            
+
 
