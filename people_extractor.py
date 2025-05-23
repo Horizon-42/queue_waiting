@@ -60,6 +60,10 @@ class PeopleExtractor(object):
         confs = results[0].boxes.conf.cpu().numpy()
         # get the main pose keypoints 0 nose, 1 left eye, 2 right eye, 3 left ear, 4 right ear, 5 left shoulder, 6 right shoulder,
         poses = results[0].keypoints.cpu().numpy().data
+
+        if boxes.shape[0] == 0:
+            return [],[]
+        
         # only keep first 7 keypoints
         poses = poses[:, [0,3,4,5,6], :]
         mask = (confs > 0.7) & (classes == 0) & (self.__vaild_pose_mask(poses))
@@ -67,12 +71,12 @@ class PeopleExtractor(object):
         boxes = boxes[mask]
         confs = confs[mask]
         classes = classes[mask]
-
-        # get pose
-        
-        # Filter poses for people (class 0)
         poses = poses[mask]
-        # TODO check if have valid pose
+        
+        # reset boxes with shoulder y coordinate
+        lower_shoulders = np.maximum(poses[:, -1, 1], poses[:, -2, 1])
+        # print(lower_shoulders)
+        boxes[:, 3] = lower_shoulders + (lower_shoulders - boxes[:, 1])*0.2
 
         # horizontal stack boxes, confs, classes
         boxes = np.hstack((boxes, confs.reshape(-1, 1), classes.reshape(-1, 1)))
