@@ -51,7 +51,7 @@ class PeopleExtractor(object):
     def __vaild_pose_mask(self, poses):
         return np.sum(poses[:,:,2] > 0.5, axis=1) >= 3
     
-    def extract_pose_and_boxes(self, original_image):
+    def extract_boxes_with_poses(self, original_image):
         results = self.model(original_image, conf=0.5, verbose=False)
         boxes = results[0].boxes.xyxy.cpu().numpy()
         # Get bounding boxes

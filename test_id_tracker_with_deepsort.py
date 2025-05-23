@@ -25,7 +25,7 @@ while True:
         break
 
     # YOLOv5 目标检测（只检测人类）
-    detections = people_extractor.extract_boxes(frame)
+    detections, poses = people_extractor.extract_boxes_with_poses(frame)
     # make images
     person_images = [frame[int(y1):int(y2), int(x1):int(x2)] for x1,y1,x2,y2, conf, cls in detections]
     batch_features = [feature_extractor.extract(person_image).flatten() for person_image in person_images]
