@@ -48,6 +48,9 @@ class PeopleExtractor(object):
         boxes = np.hstack((boxes, confs.reshape(-1, 1), classes.reshape(-1, 1)))
         return boxes
     
+    def __vaild_pose_mask(self, poses):
+        return np.sum(poses[:,:,2] > 0.5, axis=1) >= 3
+    
     def extract_pose_and_boxes(self, original_image):
         results = self.model(original_image, conf=0.5, verbose=False)
         boxes = results[0].boxes.xyxy.cpu().numpy()
@@ -55,18 +58,21 @@ class PeopleExtractor(object):
         classes = results[0].boxes.cls.cpu().numpy()
         # get confidence
         confs = results[0].boxes.conf.cpu().numpy()
-        mask = (confs > 0.7) & (classes == 0)
+        # get the main pose keypoints 0 nose, 1 left eye, 2 right eye, 3 left ear, 4 right ear, 5 left shoulder, 6 right shoulder,
+        poses = results[0].keypoints.cpu().numpy().data
+        # only keep first 7 keypoints
+        poses = poses[:, [0,3,4,5,6], :]
+        mask = (confs > 0.7) & (classes == 0) & (self.__vaild_pose_mask(poses))
         # Filter boxes for people (class 0)
         boxes = boxes[mask]
         confs = confs[mask]
         classes = classes[mask]
 
         # get pose
-        poses = results[0].keypoints.cpu().numpy()
+        
         # Filter poses for people (class 0)
-        poses = poses[mask].data
+        poses = poses[mask]
         # TODO check if have valid pose
-        # 0 nose, 1 left eye, 2 right eye, 3 left ear, 4 right ear, 5 left shoulder, 6 right shoulder,
 
         # horizontal stack boxes, confs, classes
         boxes = np.hstack((boxes, confs.reshape(-1, 1), classes.reshape(-1, 1)))
