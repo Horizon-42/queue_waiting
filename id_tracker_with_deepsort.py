@@ -20,6 +20,8 @@ class IDTracker:
         self.current_frame += 1
         # YOLOv5 目标检测（只检测人类）
         detections, poses = self.people_extractor.extract_boxes_with_poses(frame)
+        frame = self.people_extractor.draw_poses(frame, poses)
+
         # make images
         person_images = [frame[int(y1):int(y2), int(x1):int(x2)] for x1,y1,x2,y2, conf, cls in detections]
         batch_features = [self.feature_extractor.extract(person_image).flatten() for person_image in person_images]
@@ -31,6 +33,10 @@ class IDTracker:
             dets_for_tracker.append(([x1, y1, x2 - x1, y2 - y1], conf.item(), 'person'))
         
         tracks = self.tracker.update_tracks(dets_for_tracker, frame=frame, embeds=batch_features)
+
+        # show people count
+        cv2.putText(frame, f"Total: -1, In view: {len(tracks)}", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
         for track in tracks:
             if not track.is_confirmed():

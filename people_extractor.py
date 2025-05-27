@@ -90,14 +90,14 @@ class PeopleExtractor(object):
             cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
         return image
 
-    def draw_pose(self, image, poses):
+    def draw_poses(self, image, poses):
         for pose in poses:
             i = 0
             for point in pose:
                 x, y, conf = point
                 if conf > 0.5:
                     cv2.circle(image, (int(x), int(y)), 5, (0, 0, 255), -1)
-                    cv2.putText(image, f"id{i}: {conf:.2f}", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                    # cv2.putText(image, f"id{i}: {conf:.2f}", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
                 i+= 1
         return image
     
