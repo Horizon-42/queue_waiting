@@ -2,10 +2,10 @@ import cv2
 from deep_sort_realtime.deepsort_tracker import DeepSort
 from people_extractor import PeopleExtractor
 from feature_extractor import FeatureExtractor
-from thread_safe_ordered_dict import ThreadSafeOrderedDict,TrackInfo
+from thread_safe_ordered_dict import ThreadSafeOrderedDict,TrackInfo, Person
 
 class IDTracker:
-    def __init__(self, camera_id:int):
+    def __init__(self, camera_id:int, global_tracks:ThreadSafeOrderedDict=None):
         self.camera_id = camera_id
         self.people_extractor = PeopleExtractor()
         self.feature_extractor = FeatureExtractor()
