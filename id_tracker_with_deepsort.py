@@ -5,7 +5,7 @@ from feature_extractor import FeatureExtractor
 from thread_safe_ordered_dict import ThreadSafeOrderedDict,TrackInfo, Person
 
 class IDTracker:
-    def __init__(self, camera_id:int, global_tracks:ThreadSafeOrderedDict=None):
+    def __init__(self, camera_id:int, global_tracks:ThreadSafeOrderedDict):
         self.camera_id = camera_id
         self.people_extractor = PeopleExtractor()
         self.feature_extractor = FeatureExtractor()
@@ -15,7 +15,9 @@ class IDTracker:
         self.tracked_infos:dict[int, TrackInfo] = {}
 
         self.current_frame = 0
-    
+
+        self.global_tracks = global_tracks 
+
     def process_frame(self, frame):
         self.current_frame += 1
         # YOLOv5 目标检测（只检测人类）
