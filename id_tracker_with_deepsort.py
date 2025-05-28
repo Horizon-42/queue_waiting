@@ -54,7 +54,8 @@ class IDTracker:
                 track_info.out_view_time = self.current_frame
                 duration = track_info.out_view_time - track_info.in_view_time
                 # update the newest feature
-                track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
+                # track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
+                track_info.feature = track.features[0] 
             self.__compare_across_views(self.tracked_infos[track_id])
             l, t, r, b = track.to_ltrb()
             track_info = self.tracked_infos[track_id]
@@ -65,7 +66,7 @@ class IDTracker:
     
     
     def __compare_across_views(self, track_info:TrackInfo):
-        THRESHOLD = 0.6
+        THRESHOLD = 0.5
         has_matched = False
         for person in self.global_tracks.values():
             # copute cosine similarity
