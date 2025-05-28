@@ -74,6 +74,7 @@ class IDTracker:
         THRESHOLD = 0.4
         min_dist = 1
         min_id = -1
+        # TODO 最大池化
         for person in self.global_tracks.values():
             min_view_dist = 1
             for view_id, feature in person.view_features.items():
