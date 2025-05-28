@@ -17,10 +17,10 @@ class Person:
     id:int = -1  # unique identifier for the person
     in_line_time:int = 0  # time when the person enters the line
     out_line_time:int = 0  # time when the person leaves the line
-    detected_times:int = 0
     is_waitting:bool = True
 
-    global_feature:np.ndarray = None
+    # global_feature:np.ndarray = None
+    view_features:dict[int, np.ndarray] = None
 
 
 class ThreadSafeOrderedDict:
@@ -29,17 +29,17 @@ class ThreadSafeOrderedDict:
         self.lock = Lock()
         self.next_id = 0
 
-    def add(self, person_feature:np.ndarray):
+    def add(self, view_id, person_feature:np.ndarray):
         with self.lock:
-            self.od[self.next_id] = Person(id=self.next_id, detected_times=1, is_waitting=True, global_feature=person_feature)
+            self.od[self.next_id] = Person(id=self.next_id, 
+                                           is_waitting=True, view_features={view_id: person_feature})
             self.next_id += 1
     
-    def update(self, id, person_feature:np.ndarray):
+    def update(self, id, view_id, person_feature:np.ndarray):
         with self.lock:
             if id in self.od:
                 # ??? time? need a global time?
-                self.od[id].detected_times += 1
-                self.od[id].global_feature += (person_feature - self.od[id].global_feature) / self.od[id].detected_times
+                self.od[id].view_features[view_id] = person_feature
             
 
     def get(self, id):

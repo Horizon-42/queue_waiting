@@ -3,7 +3,7 @@ from deep_sort_realtime.deepsort_tracker import DeepSort
 from people_extractor import PeopleExtractor
 from feature_extractor import FeatureExtractor
 from thread_safe_ordered_dict import ThreadSafeOrderedDict,TrackInfo, Person
-from scipy.spatial.distance import cosine as cosine_similarity
+import numpy as np
 
 class IDTracker:
     def __init__(self, camera_id:int, global_tracks:ThreadSafeOrderedDict):
@@ -37,10 +37,6 @@ class IDTracker:
         
         tracks = self.tracker.update_tracks(dets_for_tracker, frame=frame, embeds=batch_features)
 
-        # show people count
-        cv2.putText(frame, f"Total: -1, In view: {len(tracks)}", (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
         for track in tracks:
             if not track.is_confirmed():
                 continue
@@ -54,33 +50,49 @@ class IDTracker:
                 track_info.out_view_time = self.current_frame
                 duration = track_info.out_view_time - track_info.in_view_time
                 # update the newest feature
-                # track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
-                track_info.feature = track.features[0] 
+                track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
+                # track_info.feature = track.features[0] 
             self.__compare_across_views(self.tracked_infos[track_id])
             l, t, r, b = track.to_ltrb()
             track_info = self.tracked_infos[track_id]
             cv2.rectangle(frame, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
             cv2.putText(frame, f"{track_info.id} at view {self.camera_id} : {track_id}", (int(l), int(t) - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+        
+        # show people count
+        cv2.putText(frame, f"Total: {len(self.global_tracks.keys())}, In view: {len(tracks)}", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        
         return frame, tracks
     
+    def cosine_similarity(self, feature1, feature2):
+        if feature1 is None or feature2 is None:
+            return 0
+        return np.dot(feature1, feature2) / (np.linalg.norm(feature1) * np.linalg.norm(feature2))
     
     def __compare_across_views(self, track_info:TrackInfo):
-        THRESHOLD = 0.5
-        has_matched = False
+        THRESHOLD = 0.4
+        min_dist = 1
+        min_id = -1
         for person in self.global_tracks.values():
-            # copute cosine similarity
-            if person.global_feature is not None:
-                similarity = cosine_similarity(track_info.feature, person.global_feature)
-                print(f"similarity: {similarity}")
-                if similarity > THRESHOLD:
-                    # update the global track
-                    self.global_tracks.update(person.id, track_info.feature)
-                    track_info.id = person.id
-                    has_matched = True
-        if not has_matched:
+            min_view_dist = 1
+            for view_id, feature in person.view_features.items():
+                if view_id == track_info.view_id:
+                    continue
+                # compare the feature with the global tracks
+                dist = 1- self.cosine_similarity(track_info.feature, feature)
+                min_view_dist = min(min_view_dist, dist)
+            if min_view_dist < min_dist:
+                min_dist = min_view_dist
+                min_id = person.id
+        print(min_dist)
+        if min_dist < THRESHOLD:
+            # update the global track
+            track_info.id = min_id
+            self.global_tracks.update(min_id, track_info.view_id, track_info.feature)
+        else:
             # add a new global track
-            self.global_tracks.add(track_info.feature)
+            self.global_tracks.add(track_info.view_id, track_info.feature)
             track_info.id = self.global_tracks.next_id - 1
             
 
