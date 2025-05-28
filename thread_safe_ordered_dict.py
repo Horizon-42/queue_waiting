@@ -2,6 +2,7 @@ from dataclasses import dataclass
 # from collections import OrderedDict
 from threading import Lock
 import numpy as np
+import time
 
 @dataclass
 class TrackInfo:
@@ -18,25 +19,33 @@ class Person:
     out_line_time:int
     is_waitting:bool
 
-    track_infos:dict[int, TrackInfo] = None
+    global_feature:np.ndarray = None
 
 
 class ThreadSafeOrderedDict:
     def __init__(self):
         self.od = dict()
         self.lock = Lock()
+        self.next_id = 0
 
-    def set(self, key, value:object):
+    def add(self, person_feature:np.ndarray):
         with self.lock:
-            self.od[key] = value
+            self.od[self.next_id] = Person(id=self.next_id, in_line_time=time.thread_time(), is_waitting=True, global_feature=person_feature)
+    
+    def update(self, id, person_feature:np.ndarray):
+        with self.lock:
+            if id in self.od:
+                # ??? time? need a global time?
+                self.od[id].global_feature = person_feature
+            
 
-    def get(self, key):
+    def get(self, id):
         with self.lock:
-            return self.od.get(key)
+            return self.od.get(id)
 
-    def remove(self, key):
+    def remove(self, id):
         with self.lock:
-            self.od.pop(key, None)
+            self.od.pop(id, None)
 
     def pop_first(self):
         with self.lock:

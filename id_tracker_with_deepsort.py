@@ -61,6 +61,21 @@ class IDTracker:
             cv2.putText(frame, f"{track_info.id} at view {self.camera_id} : {track_id}", (int(l), int(t) - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
         return frame, tracks
+    
+    def __compare_across_views(self, track_info:TrackInfo):
+        for track_id, track_info in self.tracked_infos.items():
+            if track_info.id == -1:
+                # not assigned yet
+                continue
+            if track_info.id in self.global_tracks:
+                global_track = self.global_tracks[track_info.id]
+                global_track.add_view(track_info)
+            else:
+                person = Person(id=track_info.id, view_id=track_info.view_id, 
+                                in_view_time=track_info.in_view_time, 
+                                out_view_time=track_info.out_view_time, 
+                                feature=track_info.feature)
+                self.global_tracks[track_info.id] = person
             
 
 
