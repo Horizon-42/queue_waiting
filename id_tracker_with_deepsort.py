@@ -3,6 +3,7 @@ from deep_sort_realtime.deepsort_tracker import DeepSort
 from people_extractor import PeopleExtractor
 from feature_extractor import FeatureExtractor
 from thread_safe_ordered_dict import ThreadSafeOrderedDict,TrackInfo, Person
+from scipy.spatial.distance import cosine as cosine_similarity
 
 class IDTracker:
     def __init__(self, camera_id:int, global_tracks:ThreadSafeOrderedDict):
@@ -54,7 +55,7 @@ class IDTracker:
                 duration = track_info.out_view_time - track_info.in_view_time
                 # update the newest feature
                 track_info.feature = track_info.feature + 1/duration * (track.features[0] - track_info.feature)
-
+            self.__compare_across_views(self.tracked_infos[track_id])
             l, t, r, b = track.to_ltrb()
             track_info = self.tracked_infos[track_id]
             cv2.rectangle(frame, (int(l), int(t)), (int(r), int(b)), (0, 255, 0), 2)
@@ -62,20 +63,24 @@ class IDTracker:
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
         return frame, tracks
     
+    
     def __compare_across_views(self, track_info:TrackInfo):
-        for track_id, track_info in self.tracked_infos.items():
-            if track_info.id == -1:
-                # not assigned yet
-                continue
-            if track_info.id in self.global_tracks:
-                global_track = self.global_tracks[track_info.id]
-                global_track.add_view(track_info)
-            else:
-                person = Person(id=track_info.id, view_id=track_info.view_id, 
-                                in_view_time=track_info.in_view_time, 
-                                out_view_time=track_info.out_view_time, 
-                                feature=track_info.feature)
-                self.global_tracks[track_info.id] = person
+        THRESHOLD = 0.6
+        has_matched = False
+        for person in self.global_tracks.values():
+            # copute cosine similarity
+            if person.global_feature is not None:
+                similarity = cosine_similarity(track_info.feature, person.global_feature)
+                print(f"similarity: {similarity}")
+                if similarity > THRESHOLD:
+                    # update the global track
+                    self.global_tracks.update(person.id, track_info.feature)
+                    track_info.id = person.id
+                    has_matched = True
+        if not has_matched:
+            # add a new global track
+            self.global_tracks.add(track_info.feature)
+            track_info.id = self.global_tracks.next_id - 1
             
 
 
