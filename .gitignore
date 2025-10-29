@@ -11,3 +11,5 @@ __pycache__
 *.jpg
 *.mp4
 models
+
+*.pt
